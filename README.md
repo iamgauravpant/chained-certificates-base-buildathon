@@ -4,7 +4,10 @@
 # ChainedCertificates
 ChainedCertificates is a Certificate Management System based on blockchain technology. It allows users to issue and verify certificates on the blockchain, ensuring authenticity and transparency.
 
-## Demo
+## Website 
+https://chained-certificates.netlify.app
+
+## Demo Video
 
 https://www.youtube.com/watch?v=Eo-KmOd3i7s
 
