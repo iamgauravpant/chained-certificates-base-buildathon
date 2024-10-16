@@ -59,11 +59,6 @@ We envision a world where certificate fraud is a thing of the past, and verifyin
 
 This project builds upon the [Certificate Generator](https://github.com/vedant-jain03/certificate-generator/) by [@vedant-jain03](https://github.com/vedant-jain03), which served as the foundation for further development.
 
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-
 ## Run Locally
 
 Clone the project
