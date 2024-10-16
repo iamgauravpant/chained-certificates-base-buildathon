@@ -1,0 +1,366 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { openNotificationWithIcon } from "../../utils/openNotificationWithIcon";
+import { setCreateCertificateCurrentView } from "../slices/certificateIssuerSlice";
+
+const BACKENDURL =  import.meta.env.VITE_ENV==="DEV" ? import.meta.env.VITE_BACKENDURL_DEV : import.meta.env.VITE_BACKENDURL_PROD;
+const PINATA_UPLOAD_URL = import.meta.env.VITE_PINATA_UPLOAD_URL;
+const PINATAJWT = import.meta.env.VITE_PINATAJWT;
+export const deployCertificateCollection = createAsyncThunk(
+    "certificateIssuer/deployCertificateCollection",
+    async (data, thunkAPI) => {
+      const accessToken = localStorage.getItem("accessToken");
+      try {
+        let res = await axios.post(
+          `${BACKENDURL}/users/create-certificate-collection`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            withCredentials: true,
+          }
+        );
+        console.log("res :", res);
+        localStorage.setItem("user", JSON.stringify(res.data.data.user));
+        res.status === 201 &&
+          openNotificationWithIcon("success", res?.data?.message);
+        res.status === 201 && thunkAPI.dispatch(setCreateCertificateCurrentView(1))
+        return res.data.data.collection;
+      } catch (error) {
+        const message =
+          (error.response && error.response.data && error.response.data.error) ||
+          error.message ||
+          error.toString();
+        openNotificationWithIcon("error", message);
+        return thunkAPI.rejectWithValue(message);
+      }
+    }
+);
+  
+export const getCertificateCollections = createAsyncThunk(
+    "certificateIssuer/getCertificateCollections",
+    async (_, thunkAPI) => {
+      const accessToken = localStorage.getItem("accessToken");
+      console.log("accessToken :",accessToken);
+      try {
+        let res = await axios.get(
+          `${BACKENDURL}/users/certificate-collections`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            withCredentials: true,
+          }
+        );
+        const collectionsArray = res.data.data.collections;
+        return collectionsArray;
+      } catch (error) {
+        const message =
+          (error.response && error.response.data && error.response.data.error) ||
+          error.message ||
+          error.toString();
+        openNotificationWithIcon("error", message);
+        return thunkAPI.rejectWithValue(message);
+      }
+    }
+);
+
+export const createCertificateReceiver = createAsyncThunk(
+  "certificateIssuer/createCertificateReceiver",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.post(
+        `${BACKENDURL}/certificateIssuers/create-certificate-receiver`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of createCertificateReceiver :", res);
+      const receiverId = res.data.data.certificateReceiver._id;
+      // res.status === 201 &&
+      // openNotificationWithIcon("success", res?.data?.message);
+      const newData = {receiverId,collectionId:data.collectionId}
+      console.log("formData first :",data.formData)
+      res.status === 201 && thunkAPI.dispatch(createCertificate(newData));
+      return res.data.data.certificateReceiver;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const getCertificateReceivers = createAsyncThunk(
+  "certificateIssuer/getCertificateReceivers",
+  async (_, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.get(
+        `${BACKENDURL}/certificateIssuers/certificate-receivers`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of getCertificateReceivers :", res);
+      // res.status === 200 &&
+      //   openNotificationWithIcon("success", "Certificate receivers retrieved successfully");
+      return res.data.data.certificateReceivers;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const getCertificateReceiver = createAsyncThunk(
+  "certificateIssuer/getCertificateReceiver",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.post(
+        `${BACKENDURL}/certificateIssuers/get-certificate-receiver`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      // res.status === 200 &&
+      //   openNotificationWithIcon("success", "Certificate receivers retrieved successfully");
+      return res.data.data.certficiateReceivers;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const createCertificate = createAsyncThunk(
+  "certificateIssuer/createCertificate",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.post(
+        `${BACKENDURL}/certificateIssuers/create-certificate`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of createCertificate :", res);
+      return res.data.data.certificate;
+      // res.status === 201 &&
+      //   openNotificationWithIcon("success", res?.data?.message);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const uploadCertificateToIPFS = createAsyncThunk(
+  "certificateIssuer/uploadCertificateToIPFS",
+  async (data, thunkAPI) => {
+    try {
+      console.log("formData last :",data);
+      let res = await axios.post(
+        PINATA_UPLOAD_URL,
+        data.formData,
+        {
+          headers: {
+            Authorization: `Bearer ${PINATAJWT}`,
+          },
+        }
+      );
+      console.log("res of upload to IPFS :",res);
+      res.status===200 && thunkAPI.dispatch(updateCertificateData({certificateId:data.certificateId,...res.data}))
+      // res.status===200 && openNotificationWithIcon("success","Uploaded certificate to IPFS successfully")
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const updateCertificateData = createAsyncThunk(
+  "certificateIssuer/updateCertificateData",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log("data for my api logged :",data);
+    const {certificateId,IpfsHash,PinSize,Timestamp} = data;
+    try {
+      let res = await axios.patch(
+        `${BACKENDURL}/certificateIssuers/update-certificate`,
+        {certificateId,IpfsHash,PinSize,Timestamp},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of updateCertificateData my api :", res);
+      res.status === 201 && openNotificationWithIcon("success", res?.data?.message);
+      return res.data.data.certificate;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+
+  }
+);
+
+export const mintAndAttestCertificate = createAsyncThunk(
+  "certificateIssuer/mintAndAttestCertificate",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log("data for mint and attest certificate API :",data);
+    try {
+      let res = await axios.post(
+        `${BACKENDURL}/certificateIssuers/mint-certificate`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of mintAndAttestCertificate :", res);
+      res.status === 200 && openNotificationWithIcon("success", res?.data?.message);
+      return res.data.data.certificate;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const attestCertificate = createAsyncThunk(
+  "certificateIssuer/attestCertificate",
+  async (data, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log("data for attest certificate API :",data);
+    try {
+      let res = await axios.post(
+        `${BACKENDURL}/certificateIssuers/attest-certificate`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of mintAndAttestCertificate :", res);
+      res.status === 200 && openNotificationWithIcon("success", res?.data?.message);
+      return res.data.data.certificate;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const getCertificates = createAsyncThunk(
+  "certificateIssuer/getCertificates",
+  async (_, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.get(
+        `${BACKENDURL}/certificateIssuers/get-certificates`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of getCertificates :", res);
+      // res.status === 200 &&
+      //   openNotificationWithIcon("success", "Certificate receivers retrieved successfully");
+      return res.data.data.certificates;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const getData = createAsyncThunk(
+  "certificateIssuer/getData",
+  async (_, thunkAPI) => {
+    const accessToken = localStorage.getItem("accessToken");
+    try {
+      let res = await axios.get(
+        `${BACKENDURL}/certificateIssuers/get-data`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res of getData :", res);
+
+      return res.data.data;
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.error) ||
+        error.message ||
+        error.toString();
+      openNotificationWithIcon("error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);

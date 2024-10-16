@@ -114,8 +114,3 @@ Then, start the backend server
 ```bash
   npm run dev
 ```
-
-
-
-
-

@@ -1,0 +1,13 @@
+.logo {
+    width: 100%;
+    max-width: 250px;
+    height: 70px;
+}
+.wallet-address {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* .ant-layout-footer {
+    padding: 24px 24px !important;
+} */

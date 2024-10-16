@@ -1,0 +1,29 @@
+.certificate-details {
+    padding: 2rem;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+  
+  .certificate-title {
+    margin-bottom: 1.5rem; /* Space below the title */
+    color: #333; /* Darker color for the title */
+    text-align: center; /* Center align the title */
+  }
+  
+  .certificate-row {
+    margin-bottom: 1rem; /* Space between rows */
+  }
+  
+  .certificate-label {
+    font-weight: bold; /* Bold for labels */
+    color: #555; /* Lighter shade for labels */
+  }
+  
+  .certificate-value {
+    color: #000; /* Standard text color for values */
+    background: #e7f3ff; /* Light blue background for values */
+    padding: 0.5rem; /* Padding around value */
+    border-radius: 4px; /* Rounded corners for value boxes */
+  }
+  
