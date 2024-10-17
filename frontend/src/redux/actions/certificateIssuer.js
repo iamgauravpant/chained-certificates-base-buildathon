@@ -206,7 +206,7 @@ export const uploadCertificateToIPFS = createAsyncThunk(
       });
       console.log("res of upload to IPFS :", res);
       res.status === 200 &&
-        thunkAPI.dispatch(
+        await thunkAPI.dispatch(
           updateCertificateData({
             certificateId: data.certificateId,
             ...res.data,
@@ -242,8 +242,7 @@ export const updateCertificateData = createAsyncThunk(
         }
       );
       console.log("res of updateCertificateData my api :", res);
-      res.status === 201 &&
-        openNotificationWithIcon("success", res?.data?.message);
+      openNotificationWithIcon("success", res?.data?.message);
       return res.data.data.certificate;
     } catch (error) {
       const message =
