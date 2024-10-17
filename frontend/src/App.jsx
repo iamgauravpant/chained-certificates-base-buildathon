@@ -8,6 +8,7 @@ import Dashboard from "./Pages/Dashboard/Index";
 import Certificates from "./Pages/Certificates/Index";
 import Receivers from "./Pages/Receivers/Index";
 import Settings from "./Pages/Settings/Index";
+import Faucet from "./Pages/Faucet/Index";
 import CreateCertificate from "./Pages/CreateCertificate/Index";
 import CertificateCollections from "./Pages/CertificateCollections/Index";
 import CertificateIssuers from "./Pages/CertificateIssuers/Index";
@@ -42,6 +43,7 @@ function App() {
               <Route path="certificates" element={<Certificates />} />
               <Route path="receivers" element={<Receivers />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="faucet" element={<Faucet />} />
               <Route element={<CreateCertificateChecker />}>
               <Route path="create-certificate" element={<CreateCertificate />}/>
               </Route>

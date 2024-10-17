@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   DashboardOutlined,
   DatabaseOutlined,
+  DollarOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SafetyCertificateOutlined,
@@ -168,6 +169,11 @@ const UserLayout = () => {
             key: '/settings',
             icon: <SettingOutlined />,
             label: 'Settings',
+          },
+          {
+            key: '/faucet',
+            icon: <DollarOutlined />,
+            label: 'Faucet',
           },
         ]
     }
