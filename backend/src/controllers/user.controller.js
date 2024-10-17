@@ -1,11 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { CertificateCollection } from "../models/certificateCollection.model.js";
 import { Certificate } from "../models/certificate.model.js";
-import { CertificateReceiver } from "../models/certificateReceiver.model.js";
 import { Token } from "../models/token.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import * as crypto from 'crypto';
@@ -24,9 +21,10 @@ const generateAccessAndRefreshTokens = async (userId) => {
     await user.save({ validateBeforeSave: false }); // user model ko password bhi chahie save hone ke liye , lekin hum password save nahi karana chahte , toh validateBeforeSave ko false set kar denge
     return { accessToken, refreshToken };
   } catch (error) {
-    throw new ApiError(
-      500,
-      "Something went wrong while generating access and refresh tokens"
+    return res.status(
+      500).json({
+      error:"Something went wrong while generating access and refresh tokens"
+    }
     );
   }
 };
@@ -36,7 +34,11 @@ const createUserEthereumWallet = async (userId) => {
     const wallet = user.createEthereumWallet();
     return wallet;
   } catch (error) {
-    throw new ApiError(500, "Something went wrong while creating wallet");
+    return res.status(
+      500).json({
+      error:"Something went wrong while generating access and refresh tokens"
+    }
+    );
   }
 };
 
@@ -51,7 +53,11 @@ const deployCertCollection = async (
     const userPrivateKey = user.ethereumPrivateKey;
     const privateKeyWithout0x = userPrivateKey.slice(2);
     if (!userPrivateKey) {
-      throw new ApiError(400, "Please create wallet first");
+      return res.status(
+        400).json({
+        error:"Please create wallet first"
+      }
+      );
     }
     const certificateCollection = await CertificateCollection.findById(
       certificateCollectionId
@@ -63,7 +69,11 @@ const deployCertCollection = async (
     );
     return collection;
   } catch (error) {
-    throw new ApiError(500, "Something went wrong while deploying collection");
+    return res.status(
+      500).json({
+      error:"Something went wrong while deploying collection"
+    }
+    );
   }
 };
 // controller bas ek function hota hai
@@ -77,7 +87,11 @@ const registerUser = asyncHandler(async (req, res) => {
       (field) => field?.trim() === ""
     )
   ) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(
+      400).json({
+      error:"All fields are required"
+    }
+    );
   }
 
   const existedUser = await User.findOne({
@@ -85,7 +99,11 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    throw new ApiError(409, "User with email or username already exists");
+    return res.status(
+      409).json({
+      error:"User with email or username already exists"
+    }
+    );
   }
 
   const user = await User.create({
@@ -97,11 +115,15 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken -ethereumPrivateKey"
   ); // we'll return the user object except for password and refreshToken
 
   if (!createdUser) {
-    throw new ApiError(500, "Something went wrong while registering the user");
+    return res.status(
+      500).json({
+      error:"Something went wrong while registering the user"
+    }
+    );
   }
 
   return res
@@ -112,17 +134,29 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
   if (!username && !email) {
-    throw new ApiError(400, "Username or email is required");
+    return res.status(
+      400).json({
+      error:"Username or email is required"
+    }
+    );
   }
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
   if (!user) {
-    throw new ApiError(404, "User does not exist");
+    return res.status(
+      404).json({
+      error:"User does not exist"
+    }
+    );
   }
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid User Credentials");
+    return res.status(
+      401).json({
+      error:"Invalid User Credentials"
+    }
+    );
   }
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
@@ -185,7 +219,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
   if (!incomingRefreshToken) {
-    throw new ApiError(401, "Unauthorized request");
+    return res.status(
+      401).json({
+      error:"Unauthorized request"
+    }
+    );
   }
   try {
     const decodedToken = jwt.verify(
@@ -194,10 +232,18 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     );
     const user = await User.findById(decodedToken?.id);
     if (!user) {
-      throw new ApiError(401, "Invalid Refresh Token");
+      return res.status(
+        401).json({
+        error:"Invalid Refresh Token"
+      }
+      );
     }
     if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh Token is expired or used");
+      return res.status(
+        401).json({
+        error:"Refresh Token is expired or used"
+      }
+      );
     }
     const options = {
       httpOnly: true,
@@ -218,7 +264,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new ApiError(401, error?.message || "Invalid refresh token");
+    return res.status(
+      401).json({
+      error:"Invalid refresh token"
+    }
+    );
   }
 });
 
@@ -284,7 +334,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
 const createCertificateCollection = asyncHandler(async (req, res) => {
   const user = req.user;
   const { collection_name, collection_symbol } = req.body;
-  if (!collection_name || !collection_symbol) {
+  if (!collection_name && !collection_symbol) {
     return res
       .status(400)
       .json({ error: "collection_name and collection_symbol are required" });
@@ -334,11 +384,6 @@ const getCertificateCollections = asyncHandler(async (req, res) => {
   const user = req.user;
   try {
     const collections = await CertificateCollection.find({ owner: user._id });
-    if (!collections) {
-      return res
-        .status(404)
-        .json({ error: "No certificate collections found" });
-    }
 
     return res
       .status(200)
@@ -357,7 +402,11 @@ const getCertificateCollections = asyncHandler(async (req, res) => {
 const userForgotPassword = asyncHandler(async (req, res) => {
   const { identifier } = req.body;
   if (!identifier) {
-    throw new ApiError(400, "Identifier is required!");
+    return res.status(
+      400).json({
+      error:"Identifier is required!"
+    }
+    );
   }
 
   const existedUser = await User.findOne({
@@ -370,7 +419,11 @@ const userForgotPassword = asyncHandler(async (req, res) => {
 
   // If the user doesn't exist, return an error
   if (!existedUser) {
-    throw new ApiError(404, "User not found with the given identifier.");
+    return res.status(
+      404).json({
+      error:"User not found with the given identifier."
+    }
+    );
   }
 
   // If the user exists, generate and send the OTP
@@ -378,11 +431,10 @@ const userForgotPassword = asyncHandler(async (req, res) => {
   try {
     otp = await sendForgotPasswordOTP(existedUser.email);
   } catch (error) {
-    // console.error("Error generating or sending OTP: ", error);
-    throw new ApiError(
-      500,
-      null,
-      "Failed to send OTP. Please try again later."
+    return res.status(
+      500).json({
+      error:"Failed to send OTP. Please try again later."
+    }
     );
   }
   const existedUserId = existedUser._id;
@@ -405,7 +457,11 @@ const userForgotPassword = asyncHandler(async (req, res) => {
 const userForgotPasswordOTP = asyncHandler(async (req, res) => {
   const { otp, identifier } = req.body;
   if ([otp, identifier].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(
+      400).json({
+      error:"All fields are required"
+    }
+    );
   }
 
   const existedUser = await User.findOne({
@@ -417,14 +473,22 @@ const userForgotPasswordOTP = asyncHandler(async (req, res) => {
   }).select("-password -refreshToken -ethereumPrivateKey");
   // If the user doesn't exist, return an error
   if (!existedUser) {
-    throw new ApiError(404, "User not found with the given identifier.");
+    return res.status(
+      404).json({
+      error:"User not found with the given identifier."
+    }
+    );
+
   }
   const existedUserId = existedUser._id;
   const token = await Token.findOne({ userId: existedUserId, otp });
   console.log("token :", token);
   if (!token) {
-    // Either token not found or it expired
-    throw new ApiError(404, "OTP not found or has expired.");
+    return res.status(
+      404).json({
+      error:"Token not found or has expired."
+    }
+    );
   }
   const forgotPasswordToken = crypto.randomBytes(32).toString("hex");
   console.log("forgotPasswordToken :",forgotPasswordToken);
@@ -433,11 +497,10 @@ const userForgotPasswordOTP = asyncHandler(async (req, res) => {
   try {
     await sendResetPasswordLink(existedUser.email,link);
   } catch (error) {
-    // console.error("Error generating or sending OTP: ", error);
-    throw new ApiError(
-      500,
-      null,
-      "Failed to send reset password email. Please try again later."
+    return res.status(
+      500).json({
+      error:"Failed to send reset password email. Please try again later."
+    }
     );
   }
   token.token = forgotPasswordToken
@@ -457,22 +520,37 @@ const resetUserPassword = asyncHandler(async (req, res) => {
   const { userId,token,newPassword } = req.body;
   console.log("userId,token,newPassword :",userId,token,newPassword )
   if ([userId,token,newPassword].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(
+      400).json({
+      error:"All fields are required."
+    }
+    );
   }
 
   const existedUser = await User.findById(userId).select("-password -refreshToken -ethereumPrivateKey");
   // If the user doesn't exist, return an error
   if (!existedUser) {
-    throw new ApiError(404, "User not found.");
+    return res.status(
+      404).json({
+      error:"User not found."
+    }
+    );
   }
   const existedToken = await Token.findOne({ userId: userId,token });
   console.log("token :", existedToken);
   if (!existedToken) {
-    // Either token not found or it expired
-    throw new ApiError(404, "Token not found or has expired.");
+    return res.status(
+      404).json({
+      error:"Token not found or has expired."
+    }
+    );
   }
   if(token !== existedToken.token){
-    throw new ApiError(404, "Invalid token found");
+    return res.status(
+      404).json({
+      error:"Invalid token found"
+    }
+    );
   }
   existedUser.password = newPassword;
   await existedUser.save();
@@ -488,18 +566,34 @@ const resetUserPassword = asyncHandler(async (req, res) => {
 const verifyCertificate = asyncHandler(async (req, res) => {
   const { IssuerAddress,TokenId,CollectionAddress } = req.body;
   if ([IssuerAddress,TokenId,CollectionAddress].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+    return res.status(
+      400).json({
+      error:"All fields are required"
+    }
+    );
   }
   const certificateCollection = await CertificateCollection.findOne({collectionAddress:CollectionAddress});
   if(!certificateCollection) {
-    throw new ApiError(404, "Certificate collection not found");
+    return res.status(
+      404).json({
+      error:"Certificate collection not found"
+    }
+    );
   }
   const issuer = await User.findOne({ethereumAddress:IssuerAddress}).select("-password -refreshToken -ethereumPrivateKey");
   if(!issuer) {
-    throw new ApiError(404, "Issuer not found");
+    return res.status(
+      404).json({
+      error:"Issuer not found"
+    }
+    );
   }
   if (!issuer._id.equals(certificateCollection.owner)) {
-    throw new ApiError(404, "Issuer is not the owner of the certificate collection");
+    return res.status(
+      404).json({
+      error:"Issuer is not the owner of the certificate collection"
+    }
+    );
   }  
   const certificate = await Certificate.findOne({ collectionOwnerId:issuer._id,collectionId:certificateCollection._id,tokenId:TokenId});
   let ownerOfToken,tokenURI;
@@ -508,7 +602,11 @@ const verifyCertificate = asyncHandler(async (req, res) => {
     tokenURI = await NFTContractReadCall("tokenURI",TokenId,CollectionAddress);
   }
   catch(error) {
-    throw new ApiError(500, "Failed to verify certificate");
+    return res.status(
+      500).json({
+      error:"Failed to verify certificate"
+    }
+    );
   }
   return res
     .status(200)

@@ -1,13 +1,9 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { CertificateCollection } from "../models/certificateCollection.model.js";
 import { Certificate } from "../models/certificate.model.js";
 import { CertificateReceiver } from "../models/certificateReceiver.model.js";
-import fs from "fs";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import jwt from "jsonwebtoken";
 import { decodeTransactionEventData } from "../utils/decodeTransactionEventData.js";
 import { notifyCertificateReceiver } from "../utils/nodemailerSetup.js";
 
@@ -63,7 +59,12 @@ const createCertificateReceiver = asyncHandler(async (req, res) => {
     });
 
     if (existingReceiver) {
-      throw new ApiError(404, "Receiver already exists!");
+      return res.status(
+        401).json({
+        error:"Receiver already exists!"
+      }
+      );
+
     }
 
     const certificateReceiver = await CertificateReceiver.create({

@@ -1,11 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { Admin } from "../models/admin.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { CertificateCollection } from "../models/certificateCollection.model.js";
 import { Certificate } from "../models/certificate.model.js";
 import { CertificateReceiver } from "../models/certificateReceiver.model.js";
 import { User } from "../models/user.model.js";
+
 const generateAccessAndRefreshTokens = async (adminId) => {
     try {
       const admin = await Admin.findById(adminId);
@@ -15,9 +15,10 @@ const generateAccessAndRefreshTokens = async (adminId) => {
       await admin.save({ validateBeforeSave: false }); // admin model ko password bhi chahie save hone ke liye , lekin hum password save nahi karana chahte , toh validateBeforeSave ko false set kar denge
       return { accessToken, refreshToken };
     } catch (error) {
-      throw new ApiError(
-        500,
-        "Something went wrong while generating access and refresh tokens"
+      return res.status(
+        500).json({
+        error:"Something went wrong while generating access and refresh tokens"
+      }
       );
     }
 };
@@ -29,7 +30,11 @@ const registerAdmin = asyncHandler(async (req, res) => {
         (field) => field?.trim() === ""
       )
     ) {
-      throw new ApiError(400, "All fields are required");
+      return res.status(
+        400).json({
+        error:"All fields are required"
+      }
+      );
     }
   
     const existedAdmin = await Admin.findOne({
@@ -37,7 +42,11 @@ const registerAdmin = asyncHandler(async (req, res) => {
     });
   
     if (existedAdmin) {
-      throw new ApiError(409, "Admin with email or username already exists");
+      return res.status(
+        409).json({
+        error:"Admin with email or username already exists"
+      }
+      );
     }
   
     const admin = await Admin.create({
@@ -51,7 +60,11 @@ const registerAdmin = asyncHandler(async (req, res) => {
     ); // we'll return the user object except for password and refreshToken
   
     if (!createdAdmin) {
-      throw new ApiError(500, "Something went wrong while registering the Admin");
+      return res.status(
+        500).json({
+        error:"Something went wrong while registering the Admin"
+      }
+      );
     }
   
     return res
@@ -62,17 +75,29 @@ const registerAdmin = asyncHandler(async (req, res) => {
 const loginAdmin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     if (!email) {
-      throw new ApiError(400, "email is required");
+      return res.status(
+        400).json({
+        error:"email is required"
+      }
+      );
     }
     const admin = await Admin.findOne({
       $or: [{ email }],
     });
     if (!admin) {
-      throw new ApiError(404, "Admin does not exist");
+      return res.status(
+        404).json({
+        error:"Admin does not exist"
+      }
+      );
     }
     const isPasswordValid = await admin.isPasswordCorrect(password);
     if (!isPasswordValid) {
-      throw new ApiError(401, "Invalid Admin Credentials");
+      return res.status(
+        401).json({
+        error:"Invalid Admin Credentials"
+      }
+      );
     }
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
       admin._id

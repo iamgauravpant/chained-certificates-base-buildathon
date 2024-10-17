@@ -1,5 +1,3 @@
-import { ApiError } from "./ApiError.js";
-
 import nodemailer from "nodemailer";
 import * as crypto from 'crypto';
 
@@ -36,8 +34,9 @@ export const sendForgotPasswordOTP = async (userEmail) => {
     // Return OTP only on successful email send
     return otp;
   } catch (error) {
-    // console.error("Error sending OTP email: ", error);
-    throw new ApiError(500,null, "Error sending OTP email. Please try again.");
+    return res.status(500).json({
+      error: "Error sending OTP email. Please try again.",
+    });
   }
 };
 
@@ -51,8 +50,9 @@ export const sendResetPasswordLink = async (userEmail,link) => {
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error("Error sending email: ", error);
-      throw new ApiError(500, "Error sending email. Please try again.");
+      return res.status(500).json({
+        error: "Error sending email. Please try again.",
+      });
     }
     console.log("info :",info)
     console.log("error here :",error)
@@ -78,7 +78,8 @@ export const notifyCertificateReceiver = async (userEmail,content) => {
     console.log("response %s", info.response);
 
   } catch (error) {
-    // console.error("Error sending OTP email: ", error);
-    throw new ApiError(500,null, "Error sending email. Please try again.");
+    return res.status(500).json({
+      error: "Error sending email. Please try again.",
+    });
   }
 };
