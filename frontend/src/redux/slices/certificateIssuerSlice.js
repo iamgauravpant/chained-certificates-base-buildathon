@@ -9,7 +9,10 @@ import {
   getCertificateReceivers,
   getCertificates,
   getData,
+  getLastFaucetRequestTime,
+  getTransferEthAmount,
   mintAndAttestCertificate,
+  sendTestnetFunds,
   updateCertificateData,
   uploadCertificateToIPFS,
 } from "../actions/certificateIssuer.js";
@@ -48,6 +51,13 @@ const initialState = {
   selectedCertificateReceiverType:"new",
   isAttestCertificateLoading:false,
   isAttestCertificateSuccess:false,
+  isGetTransferEthAmountLoading:false,
+  transferEthAmount:0,
+  isGetLastFaucetRequestTimeLoading:false,
+  lastFaucetRequestTime:0,
+  isSendTestnetFundsLoading:false,
+  isSendTestnetFundsSuccess:false,
+  sendTestnetFundsTxnHash:""
 };
 
 const certificateIssuerSlice = createSlice({
@@ -250,6 +260,45 @@ const certificateIssuerSlice = createSlice({
       .addCase(getCertificateReceiver.rejected, (state) => {
         state.isGetCertificateReceiversLoading = false;
         state.certificateReceivers = [];
+      })
+      .addCase(getTransferEthAmount.pending, (state) => {
+        state.isGetTransferEthAmountLoading = true;
+        state.transferEthAmount = 0;
+      })
+      .addCase(getTransferEthAmount.fulfilled, (state,{payload}) => {
+        state.isGetTransferEthAmountLoading = false;
+        state.transferEthAmount = payload;
+      })
+      .addCase(getTransferEthAmount.rejected, (state) => {
+        state.isGetTransferEthAmountLoading = false;
+        state.transferEthAmount = 0;
+      })
+      .addCase(getLastFaucetRequestTime.pending, (state) => {
+        state.isGetLastFaucetRequestTimeLoading = true;
+        state.lastFaucetRequestTime = 0;
+      })
+      .addCase(getLastFaucetRequestTime.fulfilled, (state,{payload}) => {
+        state.isGetLastFaucetRequestTimeLoading = false;
+        state.lastFaucetRequestTime = payload;
+      })
+      .addCase(getLastFaucetRequestTime.rejected, (state) => {
+        state.isGetLastFaucetRequestTimeLoading = false;
+        state.lastFaucetRequestTime = 0;
+      })
+      .addCase(sendTestnetFunds.pending, (state) => {
+        state.isSendTestnetFundsLoading = true;
+        state.isSendTestnetFundsSuccess = false;
+        state.sendTestnetFundsTxnHash = "";
+      })
+      .addCase(sendTestnetFunds.fulfilled, (state,{payload}) => {
+        state.isSendTestnetFundsLoading = false;
+        state.sendTestnetFundsTxnHash = payload;
+        state.isSendTestnetFundsSuccess = true;
+      })
+      .addCase(sendTestnetFunds.rejected, (state) => {
+        state.isSendTestnetFundsLoading = false;
+        state.isSendTestnetFundsSuccess = false;
+        state.sendTestnetFundsTxnHash = "";
       })
   },
 });

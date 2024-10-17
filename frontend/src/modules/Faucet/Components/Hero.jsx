@@ -1,34 +1,27 @@
 import { DollarOutlined } from "@ant-design/icons";
-import { Button, Divider, Typography } from "antd";
-import { useEffect, useState } from "react";
-import { getLastFaucetRequestTime, getTransferEthAmount, sendTestnetFunds } from "../../../utils/web3functions";
+import { Button, Divider, Typography,Spin } from "antd";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getTransferEthAmount, sendTestnetFunds } from "../../../redux/actions/certificateIssuer";
+import { openNotificationWithIcon } from "../../../utils/openNotificationWithIcon";
+
 const { Title } = Typography;
 const Hero = () => {
-  const [transferEthAmount,setTransferEthAmount] = useState(0);
-  const [lastRequestTime,setLastRequestTime] = useState(0);
-  const [receiptTxnHash,setReceiptTxnHash] = useState(null);
-  const user = JSON.parse(localStorage.getItem("user"));
-  
-  const requestEthHandler = async() => {
-    const ethRequestReceipt = user.ethereumAddress &&  await sendTestnetFunds(user.ethereumAddress);
-    if (ethRequestReceipt) {
-      setReceiptTxnHash(ethRequestReceipt.hash);
-    }
+  const dispatch = useDispatch();
+  const {isGetTransferEthAmountLoading,transferEthAmount,isGetLastFaucetRequestTimeLoading,lastFaucetRequestTime,isSendTestnetFundsLoading,isSendTestnetFundsSuccess,sendTestnetFundsTxnHash} = useSelector(state=>state.certificateIssuer);
+  console.log("lastFaucetRequestTime :",lastFaucetRequestTime)
+  const requestEthHandler = () => {
+    dispatch(sendTestnetFunds());
   };
-  useEffect(() => {
-    const fetchEthAmount = async () => {
-      const val = await getTransferEthAmount();
-      const val2 = await getLastFaucetRequestTime(user.ethereumAddress)
-      setTransferEthAmount(val);
-      setLastRequestTime(val2);
-    };
-    fetchEthAmount();
-  }, [user.ethereumAddress]);
 
-  const canRequestAgain = (lastRequestTime) => {
+  useEffect(()=>{
+    dispatch(getTransferEthAmount());
+  },[dispatch])
+
+  const canRequestAgain = (lastFaucetRequestTime) => {
     const oneDayInSeconds = 86400; // Number of seconds in a day
     const currentTime = Math.floor(Date.now() / 1000); // Current Unix epoch time in seconds
-    const nextAllowedRequestTime = lastRequestTime + oneDayInSeconds;
+    const nextAllowedRequestTime = lastFaucetRequestTime + oneDayInSeconds;
   
     return nextAllowedRequestTime >= currentTime;
   };
@@ -37,9 +30,14 @@ const Hero = () => {
     const date = new Date(unixTimestamp * 1000); // Convert to milliseconds
     return date.toUTCString(); // Convert to UTC string format
   };
+
+  useEffect(()=>{
+    isSendTestnetFundsSuccess && openNotificationWithIcon("info","Refresh the page to see updated balance.")
+  })
   
   
   return (
+    <>{isGetTransferEthAmountLoading ? <Spin fullscreen/>:
     <>
       <Title>
         ChainedCertificates Faucet <DollarOutlined />
@@ -48,16 +46,17 @@ const Hero = () => {
       <Title level={4}>
         Get free testnet faucet funds for testing ChainedCertificates ( {transferEthAmount} ETH per day )
       </Title>
-      {lastRequestTime>0 && <Title level={5}>
-        You received your daily share on {convertUnixToUTC(lastRequestTime)} . You can claim again after {convertUnixToUTC(lastRequestTime+86400)}.
+      {lastFaucetRequestTime>0 && <Title level={5}>
+        You received your daily share on {convertUnixToUTC(lastFaucetRequestTime)} . You can claim again after {convertUnixToUTC(lastFaucetRequestTime+86400)}.
       </Title> }
-      {!receiptTxnHash &&<Button disabled={canRequestAgain(lastRequestTime)} type="primary" size="large" onClick={requestEthHandler}>
+      <Button loading={isSendTestnetFundsLoading} disabled={canRequestAgain(lastFaucetRequestTime)} type="primary" size="large" onClick={requestEthHandler}>
         Request ETH
-      </Button>}
+      </Button>
       <div>
-      {receiptTxnHash && <a href={`${import.meta.env.VITE_NETWORK_EXPLORER_BASE_URL}/tx/${receiptTxnHash}`} target="_blank">Transaction Hash : {receiptTxnHash}</a>}
+      {sendTestnetFundsTxnHash && <Title level={5}>Transaction Hash :  <a href={`${import.meta.env.VITE_NETWORK_EXPLORER_BASE_URL}/tx/${sendTestnetFundsTxnHash}`} target="_blank">{sendTestnetFundsTxnHash}</a></Title>}
       </div>
-    </>
+      </>
+    }</>
   );
 };
 
