@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon --env-file=.env src/index.js",
     "start": "node src/index.js",
-    "build": "npm run build --output public"
+    "build": "node build --output src/public"
+
   },
   "keywords": [
     "javascript",
