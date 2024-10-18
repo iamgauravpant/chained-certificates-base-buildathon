@@ -28,6 +28,9 @@ app.use(express.static("public"));
 // cookie parser se user ke browser ki cookies access kar paun aur cookies set bhi kar paun , uski cookies pe CRUD operation perform kar paun
 app.use(cookieParser());
 
+app.get("/",(req,res)=>{
+    res.json({message:"Hello World"});
+})
 
 // routes import 
 import userRouter from "./routes/user.routes.js";
