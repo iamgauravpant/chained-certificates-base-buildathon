@@ -6,13 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --env-file=.env src/index.js",
-    "start": "node src/index.js",
-    "build": "npm run build --output public"
+    "start": "node src/index.js"
   },
   "keywords": [
     "javascript",
-    "backend",
-    "chai"
+    "backend"
   ],
   "author": "Gaurav Pant",
   "license": "ISC",
