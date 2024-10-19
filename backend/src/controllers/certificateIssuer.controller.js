@@ -233,7 +233,7 @@ const updateCertficateIPFSData = asyncHandler(async (req, res) => {
       const NFT_CONTRACT_ADDRESS = certificateCollection.collectionAddress;
       const issuer = await User.findById(certificateIssuer._id);
       const url =
-        "https://beige-jittery-felidae-359.mypinata.cloud/ipfs/" + IpfsHash;
+        process.env.PINATA_GATEWAY_URL + IpfsHash;
       const setTokenURIReceipt = await certificate.setCertificateTokenURI(
         NFT_CONTRACT_ADDRESS,
         tokenId,
@@ -381,7 +381,7 @@ const attestCertificate = asyncHandler(async (req, res) => {
       const certificateIPFSDetails = certificate.ipfsDetails;
       console.log("certificateIPFSDetails :", certificateIPFSDetails);
       const url =
-        "https://beige-jittery-felidae-359.mypinata.cloud/ipfs/" +
+        process.env.PINATA_GATEWAY_URL +
         certificateIPFSDetails.IpfsHash;
       console.log("url of certificate :", url);
       const attestCertificateUUID = await certificate.attestCertificate(
@@ -410,11 +410,14 @@ const attestCertificate = asyncHandler(async (req, res) => {
       const mintTxHash = certificate.mintTxHash;
       const attestationURL = `https://base-sepolia.easscan.org/attestation/view/${attestCertificateUUID}`;
       const mintURL = `https://sepolia.basescan.org/tx/${mintTxHash}`;
+      const certificateURL =
+      process.env.PINATA_GATEWAY_URL + certificate.ipfsDetails.IpfsHash;
       const content = `
       <h1>${issuer.fullname} just issued a certificate to you.</h1>
       <p><b>Certificate Collection Name :</b> ${certificateCollection.collection_name}</p>
       <p><b>Certificate Collection Symbol :</b> ${certificateCollection.collection_symbol}</p>
       <p><b>Certificate's Unique TokenId :</b> ${certificate.tokenId}</p>
+      <p><b>Certificate URL :</b> <a style="color:blue;" href=${certificateURL} target="_blank">${certificateURL}</a></p>
       <p><b>Certificate Mint Proof :</b>  <a style="color:blue;" href=${mintURL} target="_blank">${mintURL}</a></p>
       <p><b>Certificate Attestation Proof :</b> <a style="color:blue;" href=${attestationURL} target="_blank">${attestationURL}</a></p>
       <br/>
@@ -453,7 +456,7 @@ const attestCertificate = asyncHandler(async (req, res) => {
       const certificateIPFSDetails = certificate.ipfsDetails;
       console.log("certificateIPFSDetails :", certificateIPFSDetails);
       const url =
-        "https://beige-jittery-felidae-359.mypinata.cloud/ipfs/" +
+        process.env.PINATA_GATEWAY_URL +
         certificateIPFSDetails.IpfsHash;
       console.log("url of certificate :", url);
       const attestCertificateUUID = await certificate.attestCertificate(
@@ -483,11 +486,14 @@ const attestCertificate = asyncHandler(async (req, res) => {
       const mintTxHash = certificate.mintTxHash;
       const attestationURL = `https://base-sepolia.easscan.org/attestation/view/${attestCertificateUUID}`;
       const mintURL = `https://sepolia.basescan.org/tx/${mintTxHash}`;
+      const certificateURL =
+      process.env.PINATA_GATEWAY_URL + certificate.ipfsDetails.IpfsHash;
       const content = `
       <h1>${issuer.fullname} just issued a certificate to you.</h1>
       <p><b>Certificate Collection Name :</b> ${certificateCollection.collection_name}</p>
       <p><b>Certificate Collection Symbol :</b> ${certificateCollection.collection_symbol}</p>
       <p><b>Certificate's Unique TokenId :</b> ${certificate.tokenId}</p>
+      <p><b>Certificate URL :</b> <a style="color:blue;" href=${certificateURL} target="_blank">${certificateURL}</a></p>
       <p><b>Certificate Mint Proof :</b>  <a style="color:blue;" href=${mintURL} target="_blank">${mintURL}</a></p>
       <p><b>Certificate Attestation Proof :</b> <a style="color:blue;" href=${attestationURL} target="_blank">${attestationURL}</a></p>
       <br/>

@@ -84,7 +84,7 @@ const AdminHero = () => {
             style={{ color: "blue" }}
             onClick={() =>
               window.open(
-                `https://beige-jittery-felidae-359.mypinata.cloud/ipfs/${item.ipfsDetails.IpfsHash}`
+                `${import.meta.env.VITE_PINATA_GATEWAY_URL}${item.ipfsDetails.IpfsHash}`
               )
             }
           />

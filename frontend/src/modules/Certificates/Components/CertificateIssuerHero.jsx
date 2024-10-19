@@ -2,7 +2,7 @@ import { Divider, Table, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getCertificates } from "../../../redux/actions/certificateIssuer";
-import { EyeOutlined, LinkOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import CertificatePDFModal from "./CertificatePDFModal";
 import { convertToLocalTime } from "../../../utils/convertToLocalTime";
 const { Title } = Typography;
@@ -94,7 +94,7 @@ const CertificateIssuerHero = () => {
             style={{ color: "blue" }}
             onClick={() =>
               window.open(
-                `https://beige-jittery-felidae-359.mypinata.cloud/ipfs/${item.ipfsDetails.IpfsHash}`
+                `${import.meta.env.VITE_PINATA_GATEWAY_URL}${item.ipfsDetails.IpfsHash}`
               )
             }
           />
