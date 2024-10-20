@@ -52,6 +52,10 @@ const userSlice = createSlice({
     resetResetPasswordPageStates:(state)=> {
       state.isResetPasswordLoading=false;
       state.isResetPasswordSuccess=false;
+    },
+    resetVerifyCertificateStates:(state)=>{
+      state.isVerifyCertificateLoading=false;
+      state.verifyCertificateData={}
     }
   },
   extraReducers: (builder) => {
@@ -162,6 +166,7 @@ export const {
   resetEthWalletState,
   resetUpdateUserState,
   resetForgotPasswordModalStates,
-  resetResetPasswordPageStates
+  resetResetPasswordPageStates,
+  resetVerifyCertificateStates
 } = userSlice.actions;
 export default userSlice.reducer;

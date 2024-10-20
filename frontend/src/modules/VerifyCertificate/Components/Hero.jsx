@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { calculateHash } from "../../../utils/calculateHash";
 import { openNotificationWithIcon } from "../../../utils/openNotificationWithIcon";
 import "./Hero.scss";
+import { resetVerifyCertificateStates } from "../../../redux/slices/userSlice";
 
 const { Dragger } = Upload;
 const { Title } = Typography;
@@ -41,6 +42,7 @@ const Hero = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    dispatch(resetVerifyCertificateStates());
   };
 
   const props = {
@@ -233,77 +235,6 @@ const Hero = () => {
             </Col>
           </Row>
         )}
-        {/* {isVerified && metadata && (
-          <div className="certificate-details">
-            <Title level={3} className="certificate-title">
-              Certificate Details
-            </Title>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Title:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {metadata.title || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Author:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {metadata.author || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Subject:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {metadata.subject || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Certificate Issuer:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {keywordsAsJSON.IssuerAddress || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Collection Address:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {keywordsAsJSON.CollectionAddress || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>TokenId:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                {keywordsAsJSON.TokenId || "N/A"}
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="certificate-row">
-              <Col span={8} className="certificate-label">
-                <strong>Blockchain Network:</strong>
-              </Col>
-              <Col span={16} className="certificate-value">
-                Base Sepolia
-              </Col>
-            </Row>
-          </div>
-        )} */}
-
         {isVerified && metadata && (
           <div className="certificate-details">
             <Title level={3} className="certificate-title">
