@@ -9,7 +9,7 @@ https://chained-certificates.netlify.app
 
 ## Demo Video
 
-https://www.youtube.com/watch?v=Eo-KmOd3i7s
+https://www.youtube.com/watch?v=rczax0mgBg8
 
 ## Screenshots
 
