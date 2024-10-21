@@ -1,4 +1,4 @@
-
+![verify-certificate-post](https://github.com/user-attachments/assets/c92d984b-eade-4386-8f65-959d0add707b)
 ![Logo](https://chained-certificates.netlify.app/assets/logo-h4Vsy-ha.png)
 
 # ChainedCertificates
@@ -12,9 +12,15 @@ https://chained-certificates.netlify.app
 https://www.youtube.com/watch?v=rczax0mgBg8
 
 ## Screenshots
+![cover-image](https://github.com/user-attachments/assets/12b99cae-f58c-421c-999f-237fdae40641)
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![certificate-issuer-dashboard](https://github.com/user-attachments/assets/5e36f8b6-f8ca-4591-b094-ec774c6ac191)
 
+![certificate-generation-tool](https://github.com/user-attachments/assets/766ee549-91a2-480a-bceb-64d37e04a73b)
+
+![verify-certificate-pre](https://github.com/user-attachments/assets/9d4f5812-1fad-48e6-9f2a-3c90ba062f5a)
+
+![verify-certificate-post](https://github.com/user-attachments/assets/7cc94748-d9c2-4426-911d-2dd69964a91f)
 
 ## Features
 
